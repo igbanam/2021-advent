@@ -2,13 +2,15 @@
 
 # --- Day 9: Smoke Basin ---
 
-@heightmap = File.readlines('./9.in', chomp: true)
+filename = "9-ex1"
+# filename = $0.gsub(".rb", "")
+@heightmap = File.readlines("./#{filename}.in", chomp: true)
 @heightmap.map! do |row|
   row.chars.map!(&:to_i)
 end.freeze
 
 low_points = []
-out = []
+out = Array.new(@heightmap.size)  { Array.new(@heightmap.first.size) { '.' } }
 
 def low_point?(i, j)
   location = @heightmap[i][j]
@@ -21,18 +23,14 @@ def low_point?(i, j)
 end
 
 (0...@heightmap.size).each do |i|
-  out_row = []
   (0...@heightmap.first.size).each do |j|
     if low_point?(i, j)
       low_points << @heightmap[i][j]
-      out_row << @heightmap[i][j].to_s
-    else
-      out_row << '.'
+      out[i][j] = @heightmap[i][j].to_s
     end
   end
-  out << out_row.join + "\n"
 end
 
-File.write('9.out', out.join)
+File.write("#{filename}.out", out.map(&:join).join("\n"))
 
 puts low_points.map { |l| l + 1 }.sum
