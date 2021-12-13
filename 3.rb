@@ -4,20 +4,37 @@
 
 require 'debug'
 
-filename = $PROGRAM_NAME.gsub('.rb', '')
-input = File.readlines("./#{filename}.in", chomp: true)
-input.map!(&:chars)
-gamma_rate = []
-epsilon_rate = []
+def max_first(array)
+  return '1' if array.size == 2 && array[0] != array[1]
 
-(0..input.first.size).each do |i|
-  col = input.map { |row| row[i] }
-  col_tally = col.tally.to_h
-  gamma_rate << col_tally.max_by { |_k, v| v }.first
-  epsilon_rate << col_tally.min_by { |_k, v| v }.first
+  array.tally.to_h.max_by { |_k, v| v }.first
 end
 
-gamma = gamma_rate.join.to_i(2)
-epsilon = epsilon_rate.join.to_i(2)
+def min_first(array)
+  return '0' if array.size == 2 && array[0] != array[1]
 
-puts gamma * epsilon
+  array.tally.to_h.min_by { |_k, v| v }.first
+end
+
+mins = -> (array) { min_first(array) }
+maxs = -> (array) { max_first(array) }
+
+def rating(array, selector)
+  (0...array.first.size).each do |i|
+    col = array.map { |row| row[i] }
+    array.keep_if { |datum| datum[i] == selector.call(col) }
+    break if array.size == 1
+  end
+  array.join.to_i(2)
+end
+
+filename = $PROGRAM_NAME.gsub('.rb', '')
+input = File.readlines("./#{filename}-ex1.in", chomp: true).map!(&:chars)
+
+oxygen_collector = input.map(&:dup)
+co2_collector = input.map(&:dup)
+
+oxygen = rating(oxygen_collector, maxs)
+co2 = rating(co2_collector, mins)
+
+puts oxygen * co2
