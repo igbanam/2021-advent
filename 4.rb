@@ -21,17 +21,22 @@ def bingo?(board)
 end
 
 def play(sequence, boards)
+  completed_boards = []
   until sequence.empty?
+    break if completed_boards.size == boards.size
+
     @called << sequence.shift
-    boards.each do |board|
+    boards.each_with_index do |board, i|
+      next if completed_boards.include?(i)
       next unless bingo?(board)
 
-      return board
+      completed_boards << i
     end
   end
+  boards[completed_boards.last]
 end
 
 board = play(sequence, boards)
 
-unmarked = board.flatten.uniq - @called
-puts "Part 1: #{unmarked.sum * @called.last}"
+unmarked = board.flatten.delete_if { |num| @called.include?(num) }
+puts "Answer: #{unmarked.sum * @called.last}"
