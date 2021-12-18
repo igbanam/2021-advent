@@ -37,10 +37,23 @@ def walk_vertical(line)
   (endpoints.min..endpoints.max).to_a.map { |y| [line[0][0], y] }
 end
 
+def expand_range(start, finish)
+  return (start..finish).to_a if start < finish
+
+  (finish..start).to_a.reverse
+end
+
+def walk_diagonal(line)
+  x_path = expand_range(line[0][0], line[1][0])
+  y_path = expand_range(line[0][1], line[1][1])
+  x_path.zip y_path
+end
+
 def walk(line)
   return walk_horizontal(line) if horizontal?(line)
+  return walk_vertical(line) if vertical?(line)
 
-  walk_vertical(line) if vertical?(line)
+  walk_diagonal(line)
 end
 
 def update_arena(arena, steps)
@@ -53,9 +66,7 @@ def count_overlaps(arena)
   arena.flatten.count { |point| point > 1 }
 end
 
-considerations = input.filter { |line| vertical?(line) || horizontal?(line) }
-
-considerations.each do |line|
+input.each do |line|
   steps = walk(line)
   update_arena(arena, steps)
 end
