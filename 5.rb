@@ -5,7 +5,7 @@
 require 'debug'
 
 filename = $PROGRAM_NAME.gsub(/\.rb$/, '')
-input = File.readlines("./#{filename}-ex1.in", chomp: true).map do |line|
+input = File.readlines("./#{filename}.in", chomp: true).map do |line|
   line.split(' -> ').map do |point|
     point.split(',').map(&:to_i)
   end
@@ -14,8 +14,6 @@ end
 @tl_x = @tl_y = @br_x = @br_y = 0
 
 raw_points = input.flatten(1)
-@tl_x = raw_points.min_by { |point| point[0] }[0]
-@tl_y = raw_points.min_by { |point| point[1] }[1]
 @br_x = raw_points.max_by { |point| point[0] }[0]
 @br_y = raw_points.max_by { |point| point[1] }[1]
 
@@ -63,5 +61,3 @@ considerations.each do |line|
 end
 
 puts count_overlaps(arena)
-
-debugger
