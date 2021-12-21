@@ -9,6 +9,7 @@ input = File.readlines("./#{filename}.in", chomp: true)[0].split(',').map(&:to_i
 
 median = input[input.size / 2]
 
-result = input.map { |i| (i - median).abs }.sum
+range = input.min..input.max
+result = range.map { |point| input.map { |i| c = (i - point).abs; (c * (c + 1)) / 2 }.sum }.min
 
 puts "Part 1: #{result}"
