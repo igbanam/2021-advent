@@ -5,13 +5,21 @@
 require 'debug'
 
 filename = $PROGRAM_NAME.gsub(/\.rb$/, '')
-input = File.readlines("./#{filename}.in", chomp: true)
+input = File.readlines("./#{filename}-ex.in", chomp: true)
+
 PARENTHESES = [
   ['[', ']'],
   ['(', ')'],
   ['{', '}'],
-  ['<', '>'],
+  ['<', '>']
 ].flatten.freeze
+
+THE_LAW = {
+  ')': 3,
+  ']': 57,
+  '}': 1_197,
+  '>': 25_137
+}.freeze
 
 # Check if the instructions in the navigation ate corrupted.
 #
@@ -19,18 +27,22 @@ PARENTHESES = [
 # parenthesis closes with a brace which is not expected, the navigation is
 # considered corrupted. While scanning, this should stop at the first occurence
 # of corruption
-def corrupted?(nav)
+def corruption(nav)
   to_close = []
   nav.chars.each do |brace|
     to_close << brace if opening?(brace)
 
     if closing?(brace)
-      return true unless closing(to_close.last) == brace
+      return brace unless closing(to_close.last) == brace
 
       to_close.pop
     end
   end
-  to_close.empty?
+  nil
+end
+
+def cost(corruption)
+  THE_LAW[corruption.to_sym]
 end
 
 def active(brace)
@@ -57,4 +69,10 @@ def closing(brace)
   PARENTHESES[PARENTHESES.index(brace) + 1]
 end
 
-puts input.count { |instruction| corrupted?(instruction) }
+total_corruption = input
+                   .map { |instruction| corruption(instruction) }
+                   .compact
+                   .map { |f| cost(f) }
+                   .sum
+
+puts total_corruption
