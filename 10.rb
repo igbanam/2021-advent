@@ -5,7 +5,7 @@
 require 'debug'
 
 filename = $PROGRAM_NAME.gsub(/\.rb$/, '')
-input = File.readlines("./#{filename}-ex.in", chomp: true)
+input = File.readlines("./#{filename}.in", chomp: true)
 
 PARENTHESES = [
   ['[', ']'],
@@ -38,7 +38,7 @@ def corruption(nav)
       to_close.pop
     end
   end
-  nil
+  to_close
 end
 
 def cost(corruption)
@@ -69,10 +69,23 @@ def closing(brace)
   PARENTHESES[PARENTHESES.index(brace) + 1]
 end
 
-total_corruption = input
-                   .map { |instruction| corruption(instruction) }
-                   .compact
-                   .map { |f| cost(f) }
-                   .sum
+def autocomplete(closeable)
+  closeable.reverse.map { |brace| closing(brace) }
+end
 
-puts total_corruption
+def score(completion)
+  closers = THE_LAW.keys.map(&:to_s)
+  completion.chars.reduce(0) do |total, char|
+    (total * 5) + closers.index(char) + 1
+  end
+end
+
+corruptibles = input.map { |instruction| corruption(instruction) }
+corruptibles.reject { |c| c.is_a?(Array) }.map { |f| cost(f) }.tap do |costs|
+  puts "The navigation is corrupted. The cost of the repair is #{costs.sum}"
+end
+
+incomplete = corruptibles.select { |c| c.is_a?(Array) }
+incomplete.map { |c| score(autocomplete(c).join) }.sort.tap do |scores|
+  puts "Winning autocorrect is #{scores[scores.size / 2]}"
+end
